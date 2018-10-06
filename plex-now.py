@@ -11,7 +11,9 @@ plex_status_json = requests.get('http://tuxbox/tv/plex.php?type=status')
 plex_status_data = json.loads(plex_status_json.content)
 icon = os.path.dirname(os.path.realpath(__file__)) + '/plex.png'
 notification_text = ''
-error_color = '#f4b042'
+y1_color = '#f4b042'
+y2_color = '#e9a049'
+y3_color = '#cc7b19'
 
 
 def calculate_lenght(*args):
@@ -27,58 +29,60 @@ def send_notification(title, text, full_path_to_icon=''):
     n.show()
 
 
-def progress(count, total, bar_len=20):
-    filled_len = int(round(bar_len * count / float(total)))
-    # percents = round(100.0 * count / float(total), 1)
-    bar = '▰' * filled_len + '▱' * (bar_len - filled_len)
-    # bar = '⣿' * filled_len + '⣀' * (bar_len - filled_len)
-    # bar = '▮' * filled_len + '▯' * (bar_len - filled_len)
+def progress(duration, offset, bar_len=20):
+    filled_len = int(round(bar_len * offset / float(duration)))
+    # percents = round(100.0 * offset / float(duration), 1)
+    bar = '━' * filled_len + '<span color=\'#8c8c8c\'>' + '─' * \
+        (bar_len - filled_len) + '</span>'
     return bar
+
+
+def build_movie_string(title, year, duration, offset):
+    movie_string = '<b><span color=\'' + y1_color +\
+        '\'>' + title + '</span> (' + year + ')</b>\n<span color=\'#cc7b19\'>' +\
+        progress(int(duration), int(offset)) + '</span>'
+    return movie_string
+
+
+def build_episode_string(gp_title, p_title, title, duration, offset):
+    episode_string = '<b><span color=\'' + y1_color + \
+        '\'>' + gp_title.title() + '</span></b> › <b>' + p_title + \
+        '</b> › <b><span color=\'' + y1_color + '\'>' + title + \
+        '</span></b>\n<span color=\'#cc7b19\'>' +\
+        progress(int(duration), int(offset)) + '</span>'
+    return episode_string
 
 
 def notify_text_builder(item):
     try:
         if item['type'] == 'movie':
-            total_length = calculate_lenght(item['title'],
-                                            item['year'])
-            text = '<b><span color=\'{}\'>{}</span> ({})</b>'.format(
-                error_color,
+            return build_movie_string(
                 item['title'],
-                item['year']
-            )
-            text += '\n<span color=\'#cc7b19\'>' + progress(int(item['viewOffset']), int(
-                    item['Media']['Part']['duration']), total_length) + '</span>'
-            return text
+                item['year'],
+                item['Media']['Part']['duration'],
+                item['viewOffset'])
         elif item['type'] == 'episode':
-            total_length = calculate_lenght(
-                item['grandparentTitle'].title(),
+            return build_episode_string(
+                item['grandparentTitle'],
                 item['parentTitle'],
-                item['title'])
-            text = '<b><span color=\'{}\'>{}</span></b> › <b>{}</b> › <b><span color=\'{}\'>{}</span></b>'.format(
-                error_color,
-                item['grandparentTitle'].title(),
-                item['parentTitle'],
-                error_color,
-                item['title'])
-            text += '\n' + progress(int(item['viewOffset']), int(
-                    item['Media']['Part']['duration']), total_length)
-            return text
-
+                item['title'],
+                item['Media']['Part']['duration'],
+                item['viewOffset'])
     except (KeyError, IndexError) as e:
         return '<b><span color=\'{}\'>No such Key: {}</span></b>'.format(
-            error_color,
+            y1_color,
             e)
 
 
 if isinstance(plex_status_data, list):
     for item in plex_status_data:
-        notification_text = notify_text_builder(item)
+        notification_text += '\n\n' + notify_text_builder(item)
 elif isinstance(plex_status_data, dict):
     notification_text = notify_text_builder(plex_status_data)
 else:
     notification_text = '<b>No media playing</b>'
     print(notification_text)
 
-send_notification("PlexNow", '\n' + notification_text, icon)
+send_notification("PlexNow", notification_text, icon)
 
 Notify.uninit()
