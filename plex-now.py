@@ -41,7 +41,6 @@ def notify_text_builder(item):
             e)
 
 
-# print(type(plex_status_data))
 if isinstance(plex_status_data, list):
     for item in plex_status_data:
         notification_text = notify_text_builder(item)
@@ -51,8 +50,6 @@ else:
     notification_text = '<b>No media playing</b>'
     print(notification_text)
 
-send_notification("PlexNow",
-                  notification_text,
-                  icon)
+send_notification("PlexNow", notification_text, icon)
 
 Notify.uninit()
