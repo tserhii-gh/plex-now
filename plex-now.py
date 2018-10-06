@@ -39,7 +39,8 @@ def progress(duration, offset, bar_len=20):
 
 def build_movie_string(title, year, duration, offset):
     movie_string = '<b><span color=\'' + y1_color +\
-        '\'>' + title + '</span> (' + year + ')</b>\n<span color=\'#cc7b19\'>' +\
+        '\'>' + title + '</span> (' + year + \
+        ')</b>\n<span color=\'#cc7b19\'>' + \
         progress(int(duration), int(offset)) + '</span>'
     return movie_string
 
