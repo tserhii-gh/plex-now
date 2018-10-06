@@ -5,7 +5,7 @@ import requests
 import os
 import gi
 gi.require_version('Notify', '0.7')
-from gi.repository import Notify
+from gi.repository import Notify  # noqa: E402
 
 plex_status_json = requests.get('http://tuxbox/tv/plex.php?type=status')
 plex_status_data = json.loads(plex_status_json.content)
