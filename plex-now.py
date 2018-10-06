@@ -2,8 +2,8 @@
 
 import json
 import requests
-import gi
 import os
+import gi
 gi.require_version('Notify', '0.7')
 from gi.repository import Notify
 
@@ -51,13 +51,8 @@ else:
     notification_text = '<b>No media playing</b>'
     print(notification_text)
 
-# for video in plex_status_data:
-#     print(video['title'])
-#     print()
-
-# print(plex_status_data)
 send_notification("PlexNow",
                   notification_text,
                   icon)
-# print(os.path.dirname(os.path.realpath(__file__)))
+
 Notify.uninit()
