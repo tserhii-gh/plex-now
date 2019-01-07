@@ -63,10 +63,14 @@ def notify_text_builder(item):
                 item['Media']['Part']['duration'],
                 item['viewOffset'])
         elif item['type'] == 'episode':
+            if "Episode" in item['title']:
+                title = item['title']
+            else:
+                title = "Episode " + item['index']
             return build_episode_string(
                 item['grandparentTitle'],
                 item['parentTitle'],
-                item['title'],
+                title,
                 item['Media']['Part']['duration'],
                 item['viewOffset'])
     except (KeyError, IndexError) as e:
@@ -82,7 +86,6 @@ elif isinstance(plex_status_data, dict):
     notification_text = notify_text_builder(plex_status_data)
 else:
     notification_text = '<b>No media playing</b>'
-    print(notification_text)
 
 send_notification("PlexNow", notification_text, icon)
 
