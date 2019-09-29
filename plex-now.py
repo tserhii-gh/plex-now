@@ -7,7 +7,8 @@ import gi
 gi.require_version('Notify', '0.7')
 from gi.repository import Notify  # noqa: E402
 
-plex_status_json = requests.get('http://tuxbox/tv/plex.php?type=status')
+plex_status_json = requests.get(
+    'http://tuxbox/tv/plex.php?type=status', verify=False)
 plex_status_data = json.loads(plex_status_json.content)
 icon = os.path.dirname(os.path.realpath(__file__)) + '/plex.png'
 notification_text = ''
@@ -32,6 +33,7 @@ def send_notification(title, text, full_path_to_icon=''):
 def progress(duration, offset, bar_len=20):
     filled_len = int(round(bar_len * offset / float(duration)))
     # percents = round(100.0 * offset / float(duration), 1)
+    # bar = '▰' * filled_len + '<span color=\'#8c8c8c\'>' + '▱' * \
     bar = '━' * filled_len + '<span color=\'#8c8c8c\'>' + '─' * \
         (bar_len - filled_len) + '</span>'
     return bar
